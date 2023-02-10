@@ -20,4 +20,8 @@ public class ClientEntity {
     public Socket getSocket() {
         return socket;
     }
+
+    public long getCreatedAt() {
+        return createdAt;
+    }
 }

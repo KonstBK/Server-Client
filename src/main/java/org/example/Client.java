@@ -24,7 +24,7 @@ public class Client {
                 String[] splited = line.split(" ");
                 String command = splited[0];
                 String path = splited[1];
-                if (command.contains("**send")){
+                if (command.contains("**")){
                     fileSender.sendFile(path, socket);
                 }else {
                     printWriter.println(line);

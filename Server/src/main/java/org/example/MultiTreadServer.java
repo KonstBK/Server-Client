@@ -20,10 +20,11 @@ public class MultiTreadServer {
 
             while (true) {
                 Socket clientSocket = serverSocket.accept();
+
                 ClientEntity clientEntity = clientService.createClient(clientSocket);
                 repository.saveClient(clientEntity);
 
-                ConnectionData report = connectionReporter.getConnectionInfo(clientSocket);
+                ConnectionData report = connectionReporter.getConnectionInfo(clientEntity);
                 System.out.println(report);
 
                 new Thread(() -> {

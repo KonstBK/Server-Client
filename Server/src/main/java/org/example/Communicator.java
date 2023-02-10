@@ -68,7 +68,7 @@ public class Communicator {
         String fileName = filePath.getFileName().toString();
         String dirPath = filePath.getParent().toString();
 
-        return dirPath + "/Receaved/" + fileName;
+        return dirPath + "/Received/" + fileName;
     }
 
     public void sendNotifications(String clientName){

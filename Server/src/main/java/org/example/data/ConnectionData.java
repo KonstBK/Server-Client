@@ -1,16 +1,15 @@
 package org.example.data;
 
 import java.net.InetAddress;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 
 public class ConnectionData {
 
     private final String name;
-    private final LocalDateTime connectionTime;
+    private final long connectionTime;
     private final InetAddress socketData;
 
-    public ConnectionData(String name, LocalDateTime connectionTime, InetAddress socketData) {
+    public ConnectionData(String name, long connectionTime, InetAddress socketData) {
         this.name = name;
         this.connectionTime = connectionTime;
         this.socketData = socketData;
