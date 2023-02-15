@@ -70,9 +70,9 @@ public class Communicator {
 
         Path filePath = Paths.get(path);
         String fileName = filePath.getFileName().toString();
-        String dirPath = filePath.getParent().toString();
+        String dirPath = "D:\\IdeaProjects\\Server-Client\\Server\\src\\File folder\\";
 
-        return dirPath + "/Received/" + fileName;
+        return dirPath + fileName;
     }
 
     public void sendNotifications(String clientName){
