@@ -4,11 +4,13 @@ import org.example.data.ClientEntity;
 import org.example.data.ClientRepository;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Communicator {
+    Pattern pattern = Pattern.compile("(?<=file ).+");
 
     private final ClientRepository repository;
 
@@ -27,9 +29,11 @@ public class Communicator {
                 System.out.println(word);
 
                 if (word.contains("**")){
-                    String[] strArray = word.split("-");
-                    String path = strArray[1];
-                    receiveFile(path, client);
+                    Matcher matcher = pattern.matcher(word);
+                    if(matcher.find()){
+                        String path = matcher.group().trim();
+                        receiveFile(path, client);
+                    }
                 }
                 if (word.contains("exit")){
                     exit(client);
@@ -49,10 +53,9 @@ public class Communicator {
     private void receiveFile(String fileName, ClientEntity client) throws Exception{
         int bytes;
         String modifiedPath = modifyPath(fileName);
-        Path dir = Files.createDirectories(Paths.get(modifiedPath).getParent());
         FileOutputStream fileOutputStream = new FileOutputStream(modifiedPath);
         DataInputStream dataInputStream = new DataInputStream(client.getSocket().getInputStream());
-
+        System.out.println("reseaving file " + fileName);
         long size = dataInputStream.readLong();     // read file size
         byte[] buffer = new byte[4*1024];
         while (size > 0 && (bytes = dataInputStream.read(buffer, 0, (int)Math.min(buffer.length, size))) != -1) {
@@ -60,6 +63,7 @@ public class Communicator {
             size -= bytes;      // read upto file size
         }
         fileOutputStream.close();
+        System.out.println("file reseaved " + modifiedPath);
     }
 
     private String modifyPath(String path) {
@@ -74,9 +78,10 @@ public class Communicator {
     public void sendNotifications(String clientName){
 
         repository.getAllClients().forEach(clientEntity -> {
-            try (DataOutputStream out = new DataOutputStream(clientEntity.getSocket().getOutputStream())) {
+            try  {
+                DataOutputStream out = new DataOutputStream(clientEntity.getSocket().getOutputStream());
                 out.writeUTF("[SERVER] " + clientName + " successfully connected");
-                out.flush();
+                out.flush();//Need to close but it closed socket also
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
