@@ -9,7 +9,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class MultiTreadServer {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
 
         ClientRepository repository = new ClientRepository();
         ConnectionReporter connectionReporter = new ConnectionReporter();
@@ -20,7 +20,6 @@ public class MultiTreadServer {
 
             while (true) {
                 Socket clientSocket = serverSocket.accept();
-
                 ClientEntity clientEntity = clientService.createClient(clientSocket);
                 repository.saveClient(clientEntity);
 
@@ -31,10 +30,12 @@ public class MultiTreadServer {
                     try {
                         communicator.receive(clientEntity);
                     } catch (Exception e) {
-                        throw new RuntimeException(e);
+                        System.out.println("[Server] Connection closed");
                     }
                 }).start();
             }
+        } catch (IOException e) {
+            System.out.println("[Server] Connection broken");
         }
     }
 }

@@ -18,13 +18,10 @@ public class Communicator {
         this.repository = repository;
     }
 
-    public void receive(ClientEntity client) throws Exception {
-        try {
-
-            BufferedReader bufferedReader = new BufferedReader(
-                    new InputStreamReader(client.getSocket().getInputStream()));
-                    String word;
-
+    public void receive(ClientEntity client) throws IOException {
+        try (BufferedReader bufferedReader = new BufferedReader(
+                new InputStreamReader(client.getSocket().getInputStream()))) {
+            String word;
             while ((word = bufferedReader.readLine()) != null) {
                 System.out.println(word);
 
@@ -32,16 +29,21 @@ public class Communicator {
                     Matcher matcher = pattern.matcher(word);
                     if(matcher.find()){
                         String path = matcher.group().trim();
-                        receiveFile(path, client);
+                        try {
+                            receiveFile(path, client);
+                        } catch (Exception e) {
+                            System.out.println("cannot receive file from client");
+                        }
                     }
                 }
-                if (word.contains("exit")){
-                    exit(client);
+                try {
+                    if (word.contains("exit")){
+                        exit(client);
+                    }
+                } catch (IOException e) {
+                    System.out.println("Client disconnected");
                 }
             }
-
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -55,15 +57,14 @@ public class Communicator {
         String modifiedPath = modifyPath(fileName);
         FileOutputStream fileOutputStream = new FileOutputStream(modifiedPath);
         DataInputStream dataInputStream = new DataInputStream(client.getSocket().getInputStream());
-        System.out.println("reseaving file " + fileName);
-        long size = dataInputStream.readLong();     // read file size
+        long size = dataInputStream.readLong();
         byte[] buffer = new byte[4*1024];
         while (size > 0 && (bytes = dataInputStream.read(buffer, 0, (int)Math.min(buffer.length, size))) != -1) {
             fileOutputStream.write(buffer,0,bytes);
-            size -= bytes;      // read upto file size
+            size -= bytes;
         }
         fileOutputStream.close();
-        System.out.println("file reseaved " + modifiedPath);
+        System.out.println("File received from Client-" + client.getId());
     }
 
     private String modifyPath(String path) {
@@ -81,7 +82,7 @@ public class Communicator {
             try  {
                 DataOutputStream out = new DataOutputStream(clientEntity.getSocket().getOutputStream());
                 out.writeUTF("[SERVER] " + clientName + " successfully connected");
-                out.flush();//Need to close but it closed socket also
+                out.flush();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

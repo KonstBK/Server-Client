@@ -18,22 +18,13 @@ public class ConnectionData {
     public String getName() {
         return name;
     }
-//
-//    public LocalDateTime getConnectrionTime() {
-//        return connectrionTime = LocalDateTime.now();
-//    }
-//
-//    public InetAddress getSocketData() {
-//        return socketData;
-//    }
 
     @Override
     public String toString() {
-        return "ConnectionReport{" +
-                "name='" + name + '\'' +
-                ", connectionTime=" + connectionTime +
-                ", hostName" + socketData.getHostName() + " , hostAddress " + socketData.getHostAddress() +
-                " , address " + Arrays.toString(socketData.getAddress()) +
-                '}';
+        return "[SERVER] New connection\n" + name + "\n" +
+                "connectionTime= " + connectionTime + "\n" +
+                "hostName " + socketData.getHostName() + "\n" +
+                "hostAddress " + socketData.getHostAddress() + "\n" +
+                "address " + Arrays.toString(socketData.getAddress()) + "\n";
     }
 }
