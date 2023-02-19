@@ -1,42 +1,20 @@
 package org.example;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Scanner;
 
 public class Client {
-
     public static void main(String[] args) {
+        Sender sender = new Sender();
+        Reciever reciever = new Reciever();
 
-        Scanner scanner = new Scanner(System.in);
-        FileSender fileSender = new FileSender();
-
-        try (Socket socket = new Socket("localhost" ,8085)){
-            PrintWriter printWriter = new PrintWriter(socket.getOutputStream(), true);
-            printWriter.println("Connection successful");
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
+        try (Socket socket = new Socket("localhost", 8085)) {
+            sender.connect(socket).start();
+            reciever.connect(socket).start();
             while (true){
-                String line = scanner.nextLine();
-                if (line.contains("** -file")){
-                    String[] splited = line.split("-file ");
-
-                    printWriter.println(line);
-
-                    String path = splited[1].trim();
-                    fileSender.sendFile(path, socket);
-                }else {
-                    printWriter.println(line);
-                    String serverMessage = bufferedReader.readLine();
-                    System.out.println(serverMessage);
-                }
-
+                Thread.sleep(10000);
             }
-
-        } catch (Exception e){
-            System.out.println("Connection refused");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

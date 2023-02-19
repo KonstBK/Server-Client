@@ -30,6 +30,7 @@ public class MultiTreadServer {
                     try {
                         communicator.receive(clientEntity);
                     } catch (Exception e) {
+                        //repository.removeClient(clientEntity);
                         System.out.println("[Server] Connection closed");
                     }
                 }).start();

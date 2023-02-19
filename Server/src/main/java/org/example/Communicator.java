@@ -27,17 +27,18 @@ public class Communicator {
 
                 if (word.contains("**")){
                     Matcher matcher = pattern.matcher(word);
-                    if(matcher.find()){
+                    if (matcher.find()) {
                         String path = matcher.group().trim();
                         try {
                             receiveFile(path, client);
                         } catch (Exception e) {
-                            System.out.println("cannot receive file from client");
+                            System.out.println("cannot receive file from client ");
+                            e.printStackTrace();
                         }
                     }
                 }
                 try {
-                    if (word.contains("exit")){
+                    if (word.contains("exit")) {
                         exit(client);
                     }
                 } catch (IOException e) {
@@ -52,15 +53,15 @@ public class Communicator {
         client.getSocket().close();
     }
 
-    private void receiveFile(String fileName, ClientEntity client) throws Exception{
+    private void receiveFile(String fileName, ClientEntity client) throws Exception {
         int bytes;
         String modifiedPath = modifyPath(fileName);
         FileOutputStream fileOutputStream = new FileOutputStream(modifiedPath);
         DataInputStream dataInputStream = new DataInputStream(client.getSocket().getInputStream());
         long size = dataInputStream.readLong();
-        byte[] buffer = new byte[4*1024];
-        while (size > 0 && (bytes = dataInputStream.read(buffer, 0, (int)Math.min(buffer.length, size))) != -1) {
-            fileOutputStream.write(buffer,0,bytes);
+        byte[] buffer = new byte[4 * 1024];
+        while (size > 0 && (bytes = dataInputStream.read(buffer, 0, (int) Math.min(buffer.length, size))) != -1) {
+            fileOutputStream.write(buffer, 0, bytes);
             size -= bytes;
         }
         fileOutputStream.close();
@@ -71,21 +72,28 @@ public class Communicator {
 
         Path filePath = Paths.get(path);
         String fileName = filePath.getFileName().toString();
-        String dirPath = "D:\\IdeaProjects\\Server-Client\\Server\\src\\File folder\\";
+        String dirPath = filePath.getParent().toAbsolutePath().toString();
+        System.out.println(dirPath);
+        String newPAth = dirPath.replace("/Client/", "/Server/");
+        System.out.println(newPAth);
 
-        return dirPath + fileName;
+
+        return newPAth + fileName;
     }
 
-    public void sendNotifications(String clientName){
+    public void sendNotifications(String clientName) {
+        repository.getAllClients().forEach(clientEntity -> sendMessage(clientEntity, clientName + " successfully connected"));
+    }
 
-        repository.getAllClients().forEach(clientEntity -> {
-            try  {
-                DataOutputStream out = new DataOutputStream(clientEntity.getSocket().getOutputStream());
-                out.writeUTF("[SERVER] " + clientName + " successfully connected");
-                out.flush();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+    public void sendMessage(ClientEntity client, String message) {
+        try {
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(client.getSocket().getOutputStream());
+            BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
+            bufferedWriter.write("[SERVER] " + message);
+            bufferedWriter.newLine();
+            bufferedWriter.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

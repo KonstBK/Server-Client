@@ -18,6 +18,4 @@ public class ClientService {
         communicator.sendNotifications(clientName);
         return new ClientEntity(clientName, socket);
     }
-
-
 }
